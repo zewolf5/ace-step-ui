@@ -155,8 +155,8 @@
 
 ### Linux / macOS
 ```bash
-# 1. Start ACE-Step API (in ACE-Step directory)
-cd /path/to/ACE-Step
+# 1. Start ACE-Step API (in ACE-Step-1.5 directory)
+cd /path/to/ACE-Step-1.5
 uv run acestep-api --port 8001
 
 # 2. Start ACE-Step UI (in another terminal)
@@ -166,8 +166,8 @@ cd ace-step-ui
 
 ### Windows
 ```batch
-REM 1. Start ACE-Step API (in ACE-Step directory)
-cd C:\path\to\ACE-Step
+REM 1. Start ACE-Step API (in ACE-Step-1.5 directory)
+cd C:\path\to\ACE-Step-1.5
 uv run acestep-api --port 8001
 
 REM 2. Start ACE-Step UI (in another terminal)
@@ -244,13 +244,13 @@ copy server\.env.example server\.env
 
 **Linux / macOS:**
 ```bash
-cd /path/to/ACE-Step
+cd /path/to/ACE-Step-1.5
 uv run acestep-api --port 8001
 ```
 
 **Windows:**
 ```batch
-cd C:\path\to\ACE-Step
+cd C:\path\to\ACE-Step-1.5
 uv run acestep-api --port 8001
 ```
 
