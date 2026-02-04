@@ -1,3 +1,5 @@
+set ACESTEP_PATH=z:\AiMusic\AceStepUI\ACE-Step-1.5
+
 @echo off
 REM ACE-Step UI Complete Startup Script for Windows
 REM Starts ACE-Step API + Backend + Frontend

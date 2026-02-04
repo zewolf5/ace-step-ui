@@ -323,6 +323,19 @@ export const generateApi = {
     status_message?: string;
     error?: string;
   }> => api('/api/generate/format', { method: 'POST', body: params, token }),
+
+  genLyrics: (params: {
+    prompt: string;
+    model?: string;
+    temperature?: number;
+    maxTokens?: number;
+    systemPrompt?: string;
+  }, token: string): Promise<{
+    success: boolean;
+    response?: string;
+    model?: string;
+    error?: string;
+  }> => api('/api/generate/genlyrics', { method: 'POST', body: params, token }),
 };
 
 // Users API

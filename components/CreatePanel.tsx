@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, ChevronDown, Settings2, Trash2, Music2, Sliders, Dices, Hash, RefreshCw, Plus, Upload, Play, Pause } from 'lucide-react';
+import { Sparkles, ChevronDown, Settings2, Trash2, Music2, Sliders, Dices, Hash, RefreshCw, Plus, Upload, Play, Pause, Wand2 } from 'lucide-react';
 import { GenerationParams, Song } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { generateApi } from '../services/api';
@@ -174,6 +174,7 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
   const [isUploadingSource, setIsUploadingSource] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isFormatting, setIsFormatting] = useState(false);
+  const [isGeneratingLyrics, setIsGeneratingLyrics] = useState(false);
   const referenceInputRef = useRef<HTMLInputElement>(null);
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const [showAudioModal, setShowAudioModal] = useState(false);
@@ -344,6 +345,53 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
       alert('Format failed. The LLM may not be available.');
     } finally {
       setIsFormatting(false);
+    }
+  };
+
+  // Generate Lyrics handler - uses Ollama to generate lyrics
+  const handleGenLyrics = async () => {
+    if (!token) return;
+    
+    // Build prompt from available context
+    const promptParts: string[] = [];
+    if (style.trim()) {
+      promptParts.push(`Style: ${style.trim()}`);
+    }
+    if (songDescription?.trim()) {
+      promptParts.push(`Description: ${songDescription.trim()}`);
+    }
+    
+    var prompt = lyrics.trim() || 'a nice song lyrics ';
+    const systemPrompt = 'You are a song writer specialized on creating lyrics for songs, you only output the lyrics with no description. Write structured lyrics with [Verse], [Chorus], [Bridge] sections clearly marked. Be creative and match the requested style.';
+    
+    setIsGeneratingLyrics(true);
+    try {
+
+      if(style.trim().length > 0){
+        prompt = prompt + " for " + style.trim();
+      }
+
+      console.log('Generating lyrics with systemPrompt:', systemPrompt);
+      console.log('Generating lyrics with prompt:', prompt);
+      const result = await generateApi.genLyrics({
+        prompt,
+        systemPrompt,
+        temperature: 0.9,
+        maxTokens: 500,
+      }, token);
+
+      if (result.success && result.response) {
+        setLyrics(result.response.trim());
+        setInstrumental(false); // Auto-disable instrumental when generating lyrics
+      } else {
+        console.error('Generate lyrics failed:', result.error);
+        alert(result.error || 'Failed to generate lyrics. Make sure Ollama is running.');
+      }
+    } catch (err) {
+      console.error('Generate lyrics error:', err);
+      alert('Failed to generate lyrics. Ollama may not be available.');
+    } finally {
+      setIsGeneratingLyrics(false);
     }
   };
 
@@ -977,6 +1025,14 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                     disabled={isFormatting || !style.trim()}
                   >
                     <Sparkles size={14} />
+                  </button>
+                  <button
+                    className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded transition-colors ${isGeneratingLyrics ? 'text-purple-500 animate-pulse' : 'text-zinc-500 hover:text-black dark:hover:text-white'}`}
+                    title="Generate Lyrics - Create lyrics using Ollama AI"
+                    onClick={handleGenLyrics}
+                    disabled={isGeneratingLyrics || instrumental}
+                  >
+                    <Wand2 size={14} />
                   </button>
                   <button
                     className="p-1.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded text-zinc-500 hover:text-black dark:hover:text-white transition-colors"

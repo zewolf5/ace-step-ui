@@ -633,4 +633,72 @@ router.post('/format', authMiddleware, async (req: AuthenticatedRequest, res: Re
   }
 });
 
+// Generate lyrics endpoint - uses Ollama to generate text
+router.post('/genlyrics', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { prompt, model, temperature, maxTokens, systemPrompt } = req.body;
+
+    if (!prompt) {
+      res.status(400).json({ error: 'Prompt is required' });
+      return;
+    }
+
+    const { spawn } = await import('child_process');
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const SCRIPTS_DIR = path.join(__dirname, '../../scripts');
+    const OLLAMA_SCRIPT = path.join(SCRIPTS_DIR, 'call_ollama.py');
+
+    const args = [
+      OLLAMA_SCRIPT,
+      '--prompt', prompt,
+      '--json',
+    ];
+
+    if (model) args.push('--model', model);
+    if (temperature !== undefined) args.push('--temperature', String(temperature));
+    if (maxTokens) args.push('--max-tokens', String(maxTokens));
+    if (systemPrompt) args.push('--system', systemPrompt);
+
+    const result = await new Promise<{ success: boolean; data?: any; error?: string }>((resolve) => {
+      const proc = spawn('python', args, {
+        env: process.env,
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      proc.stdout.on('data', (data) => { stdout += data.toString(); });
+      proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+      proc.on('close', (code) => {
+        if (code === 0 && stdout) {
+          try {
+            const parsed = JSON.parse(stdout);
+            resolve({ success: true, data: parsed });
+          } catch {
+            resolve({ success: false, error: 'Failed to parse Ollama result' });
+          }
+        } else {
+          resolve({ success: false, error: stderr || 'Ollama call failed' });
+        }
+      });
+
+      proc.on('error', (err) => {
+        resolve({ success: false, error: err.message });
+      });
+    });
+
+    if (result.success && result.data) {
+      res.json(result.data);
+    } else {
+      res.status(500).json({ success: false, error: result.error });
+    }
+  } catch (error) {
+    console.error('Generate lyrics error:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 export default router;

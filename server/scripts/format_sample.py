@@ -10,8 +10,10 @@ import os
 import sys
 import time
 
-# Get ACE-Step path from environment or use default
-ACESTEP_PATH = os.environ.get('ACESTEP_PATH', '/home/ambsd/Desktop/aceui/ACE-Step-1.5')
+# Get ACE-Step path from environment or use default relative path
+# Default assumes this script is in ace-step-ui/server/scripts/
+DEFAULT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../ACE-Step-1.5'))
+ACESTEP_PATH = os.environ.get('ACESTEP_PATH', DEFAULT_PATH)
 sys.path.insert(0, ACESTEP_PATH)
 
 from acestep.llm_inference import LLMHandler
@@ -24,9 +26,9 @@ def get_llm_handler():
     global _llm_handler
     if _llm_handler is None:
         _llm_handler = LLMHandler()
-        # Initialize the LLM with the 0.6B model (lighter on VRAM)
+        # Initialize the LLM with the 1.7B model
         checkpoint_dir = os.path.join(ACESTEP_PATH, "checkpoints")
-        lm_model_path = "acestep-5Hz-lm-0.6B"  # Use the smaller 0.6B model
+        lm_model_path = "acestep-5Hz-lm-1.7B"  # Use the 1.7B model
 
         status, success = _llm_handler.initialize(
             checkpoint_dir=checkpoint_dir,
