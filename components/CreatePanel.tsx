@@ -395,6 +395,26 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
     }
   };
 
+  // Random Style generator - generates a random style from wildcard template
+  const handleRandomStyle = () => {
+    //Wildcard tested in comfyui to generate quite a good variety of styles and quality
+    const wildcardTemplate = `{ultra‑slow 50 bpm ballad|slow 60 bpm groove|mid‑tempo 90 bpm track|bouncy 100 bpm song|danceable 115 bpm tune|four‑on‑the‑floor 120 bpm club track|uptempo 130 bpm banger|high‑energy 140 bpm anthem|hyper 160 bpm rush}, {happy|uplifting|hopeful|melancholic|nostalgic|bittersweet|dark and brooding|mysterious|euphoric|heroic|romantic|sensual|angry|rebellious|playful|whimsical}, {with a touch of nostalgia|with subtle melancholy|with cinematic tension|with dreamy haze|with gritty aggression|with bittersweet optimism|with mystical vibes|with urban edge|with cozy warmth|with hypnotic repetition|with chaotic energy|with futuristic sheen|with vintage charm}, {background‑friendly|chill and laid‑back|head‑nod mid‑energy|steady dancefloor energy|festival‑ready intensity|adrenaline‑fueled chaos|slow‑burn build‑up|explosive drops|wave‑like rises and falls}, {pop|indie pop|synthpop|hyperpop|rock|indie rock|pop‑punk|metal|trap|boom‑bap hip‑hop|drill|R&B|neo‑soul|funk|disco|house|deep house|techno|trance|drum and bass|dubstep|future bass|lo‑fi hip‑hop|chillhop|ambient|cinematic orchestral|jazz|bossa nova|latin pop|reggaeton|afrobeat|K‑pop inspired|J‑pop inspired|game OST|chiptune|synthwave|retrowave|cyberpunk club|industrial|folk|country pop|gospel‑inspired}, {with synthwave influences|with orchestral elements|with jazz harmonies|with trap drums|with rock guitars|with metal breakdowns|with lo‑fi textures|with ambient pads|with Latin rhythms|with afrobeat percussion|with chiptune accents|with industrial noise|with gospel‑style choirs|with cinematic sound design|with psychedelic elements|with glitchy IDM twists|with vintage soul flavor|with EDM festival drops|with folk storytelling}, {1960s vintage|1970s analog|1980s neon|1990s nostalgia|early‑2000s radio|2010s modern|2020s hyper‑produced|timeless|retro‑futuristic|far‑future sci‑fi}, {soaring electric guitar lead|clean chorus‑soaked guitar|acoustic fingerstyle guitar|warm analog synth lead|shimmering digital pluck|soulful piano|haunting felt piano|wobbly Rhodes keys|brass section hooks|saxophone melodies|flute motifs|chiptune square‑wave lead|string ensemble themes|violin solos|massive supersaw stacks|vocal chop lead}, {strummed acoustic guitar|palm‑muted electric guitar|arpeggiated synths|classic piano comping|wah‑wah funk guitar|hypnotic organ chords|lo‑fi sampled keys|pizzicato strings|rhythmic vocal chops|percussive marimba patterns}, {simple sub‑bass|warm rounded bass guitar|slap funk bass|808‑driven basslines|distorted growl bass|analog synth bass|plucky sidechained bass|reese bass swells|minimal low‑end pulses}, {minimalist beat|boom‑bap swing groove|tight funk pocket|four‑on‑the‑floor house kick|syncopated afrobeat rhythm|reggaeton dembow|rolling trap hi‑hats with 808s|liquid drum and bass break|half‑time dubstep stomp|broken‑beat experimentation|live rock kit energy|lo‑fi dusty kit with vinyl crackle}, {emotional male lead vocal|emotional female lead vocal|soft whispered vocals|powerhouse belting performance|breathy intimate singing|rap verses with melodic hooks|distorted shouted vocals|heavily autotuned top‑line|vocoded robot voice|chant‑style group vocals|wordless ethereal oohs and aahs|full choir sections|no vocals, purely instrumental}, {English|Spanish|Spanglish|Japanese‑inspired syllables|Korean‑inspired phonetics|nonsense syllables for melody focus|no lyrics, only vocal textures}, {short intro, verse, pre‑chorus, huge chorus, bridge, final chorus|immediate hook intro into drop, then verse and build|slow ambient intro that blossoms into full band|loop‑friendly structure with clear 4‑bar sections|cinematic arc from quiet to massive climax|verse‑chorus‑verse‑chorus‑bridge‑chorus}, {tight and dry close‑mic sound|roomy live session feel|massive stadium reverb|dreamy washed‑out reverb and delay|intimate bedroom recording vibe|wide stereo field with moving elements|narrow mono‑focused center}, {polished radio‑ready mix|rough demo aesthetic|warm tape‑saturated sound|crushed and loud mix|clean audiophile clarity|gritty lo‑fi color|vintage analog warmth|cold clinical digital sharpness}, {catchy sing‑along chorus hook|instrumental riff hook|repeating melodic motif|call‑and‑response vocal hook|chant‑style crowd hook|earworm top‑line melody|beat‑driven groove hook|sound‑design‑driven signature moment}, {subtle vinyl crackle|tape stop effects into drops|reverse reverb swells|glitch edits and stutters|riser sweeps into chorus|impact booms and whooshes|telephone‑filtered sections|bitcrushed breakdowns|radio‑intro spoken snippet|field‑recording ambience (rain, city, forest)|sci‑fi bleeps and UI beeps|horror‑style whispers|crowd noise ambience}, {designed as a game soundtrack loop|perfect for an anime opening|made for emotional movie credits|ideal for a boss‑fight theme|meant for late‑night driving|crafted for festival main stage|built for study and focus playlists|made for short social‑media hooks|for workout / gym energy|for cinematic trailer moments}, {unexpected key changes|modal mixture and colorful chords|simple repetitive harmony|uplifting chord progressions|aggressive minor‑key riffs|extended build‑ups and drops|subtle jazz extensions}`;
+    
+    // Parse wildcard groups: {option1|option2|option3}
+    const groupPattern = /\{([^{}]+)\}/g;
+    const matches = wildcardTemplate.matchAll(groupPattern);
+    const selectedOptions: string[] = [];
+    
+    for (const match of matches) {
+      const options = match[1].split('|').map(opt => opt.trim());
+      const randomIndex = Math.floor(Math.random() * options.length);
+      selectedOptions.push(options[randomIndex]);
+    }
+    
+    const result = selectedOptions.join(', ');
+    setStyle(result);
+  };
+
   const openAudioModal = (target: 'reference' | 'source') => {
     setAudioModalTarget(target);
     setTempAudioUrl('');
@@ -1032,7 +1052,7 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                     onClick={handleGenLyrics}
                     disabled={isGeneratingLyrics || instrumental}
                   >
-                    <Wand2 size={14} />
+                    <Wand2 size={16} />
                   </button>
                   <button
                     className="p-1.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded text-zinc-500 hover:text-black dark:hover:text-white transition-colors"
@@ -1074,6 +1094,20 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                 >
                   <Sparkles size={14} />
                 </button>
+                <button
+                    className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded transition-colors ${isGeneratingLyrics ? 'text-purple-500 animate-pulse' : 'text-zinc-500 hover:text-black dark:hover:text-white'}`}
+                    title="Generate Lyrics - Create lyrics using Ollama AI"
+                    onClick={handleRandomStyle}
+                    disabled={isGeneratingLyrics || instrumental}
+                  >
+                    <Wand2 size={16} />
+                </button>
+                <button
+                    className="p-1.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded text-zinc-500 hover:text-black dark:hover:text-white transition-colors"
+                    onClick={() => setStyle('')}
+                  >
+                    <Trash2 size={14} />
+                  </button>
               </div>
               <textarea
                 value={style}
@@ -1082,7 +1116,7 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                 className="w-full h-20 bg-transparent p-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none resize-none"
               />
               <div className="px-3 pb-3 flex flex-wrap gap-2">
-                {['Pop', 'Rock', 'Electronic', 'Hip Hop', 'Jazz', 'Classical'].map(tag => (
+                {['Pop', 'Rock', 'Electronic', 'Hip Hop', 'Jazz', 'Reggae', 'Trance', 'House'].map(tag => (
                   <button
                     key={tag}
                     onClick={() => setStyle(prev => prev ? `${prev}, ${tag}` : tag)}
