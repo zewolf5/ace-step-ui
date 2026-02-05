@@ -1098,7 +1098,6 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                     className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded transition-colors ${isGeneratingLyrics ? 'text-purple-500 animate-pulse' : 'text-zinc-500 hover:text-black dark:hover:text-white'}`}
                     title="Generate Lyrics - Create lyrics using Ollama AI"
                     onClick={handleRandomStyle}
-                    disabled={isGeneratingLyrics || instrumental}
                   >
                     <Wand2 size={16} />
                 </button>
