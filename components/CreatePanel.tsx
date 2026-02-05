@@ -387,6 +387,45 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
         console.error('Generate lyrics failed:', result.error);
         alert(result.error || 'Failed to generate lyrics. Make sure Ollama is running.');
       }
+
+      const promptTitle = "Get me a nice song title for a song with the following lyrics: " + result.response.trim();  
+      const systemPromptTitle = "Result is to be returned in a json format with a single field 'title' containing the song title. Only return the json object. Example: {\"title\": \"My Song Title\"}";
+
+      console.log('Generating title with systemPrompt:', systemPromptTitle);
+      console.log('Generating title with prompt:', promptTitle);
+   
+      const resultTitle = await generateApi.genLyrics({
+        prompt: promptTitle,
+        systemPrompt: systemPromptTitle,        
+        temperature: 0.9,
+        maxTokens: 500,
+      }, token);
+
+      if (resultTitle.success && resultTitle.response) {
+        try {
+          // Remove markdown code blocks if present
+          let jsonStr = resultTitle.response.trim();
+          jsonStr = jsonStr.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+          
+          const parsed = JSON.parse(jsonStr);
+          if (parsed.title) {
+            setTitle(parsed.title);
+          } else {
+            console.warn('No title field in parsed JSON');
+          }
+        } catch (parseError) {
+          console.error('Failed to parse title JSON:', parseError, 'Response:', resultTitle.response);
+          // Fallback: use the raw response if JSON parsing fails
+          setTitle(resultTitle.response.trim());
+        }
+      } else {
+        console.error('Generate title failed:', resultTitle.error);
+        alert(resultTitle.error || 'Failed to generate title. Make sure Ollama is running.');
+      }
+
+
+
+
     } catch (err) {
       console.error('Generate lyrics error:', err);
       alert('Failed to generate lyrics. Ollama may not be available.');
@@ -1067,7 +1106,7 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                 value={lyrics}
                 onChange={(e) => setLyrics(e.target.value)}
                 placeholder={instrumental ? "Instrumental mode - no lyrics needed" : "[Verse]\nYour lyrics here...\n\n[Chorus]\nThe catchy part..."}
-                className={`w-full bg-transparent p-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none resize-none font-mono leading-relaxed ${instrumental ? 'opacity-30 cursor-not-allowed' : ''}`}
+                className={`w-full bg-transparent p-3 text-[10px] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none resize-none font-mono leading-relaxed ${instrumental ? 'opacity-30 cursor-not-allowed' : ''}`}
                 style={{ height: `${lyricsHeight}px` }}
               />
               {/* Resize Handle */}
@@ -1112,10 +1151,10 @@ export const CreatePanel: React.FC<CreatePanelProps> = ({ onGenerate, isGenerati
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
                 placeholder="e.g. upbeat pop rock, emotional ballad, 90s hip hop"
-                className="w-full h-20 bg-transparent p-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none resize-none"
+                className="w-full h-20 bg-transparent p-3 text-[10px] text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none resize-none"
               />
               <div className="px-3 pb-3 flex flex-wrap gap-2">
-                {['Pop', 'Rock', 'Electronic', 'Hip Hop', 'Jazz', 'Reggae', 'Trance', 'House'].map(tag => (
+                {['Pop', 'Rock', 'Electronic', 'Hip Hop', 'Jazz', 'Reggae', 'Vocal', 'Trance', 'House'].map(tag => (
                   <button
                     key={tag}
                     onClick={() => setStyle(prev => prev ? `${prev}, ${tag}` : tag)}
